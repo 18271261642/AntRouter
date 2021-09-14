@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="25dp"
+    android:paddingRight="25dp"
+    tools:context=".activity.MainActivity">
+
+
+    <Button
+        android:id="@+id/btn_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="返回"></Button>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="密码：" />
+
+    <EditText
+        android:id="@+id/et_pwd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="请输入密码"
+        android:text="admin@hrw20.21" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_unregister"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="注销" />
+
+        <Button
+            android:id="@+id/btn_clear_cache"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="清除缓存" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_check_update"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="检查更新"></Button>
+
+        <TextView
+            android:id="@+id/tv_version_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:textColor="@color/red_text"
+            android:textSize="20sp"
+            tools:text="当前版本为：1.0"></TextView>
+    </LinearLayout>
+
+</LinearLayout>

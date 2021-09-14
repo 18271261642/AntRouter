@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="120dp"
+    android:background="@color/common_item_bg">
+
+    <TextView
+        android:id="@+id/mTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"
+        android:ellipsize="end"
+        android:maxEms="8"
+        android:maxLines="1"
+        android:textColor="@color/common_text_color"
+        android:textSize="40sp"
+        android:textStyle="bold" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_alignParentBottom="true"
+        android:background="#1F3155" />
+
+</RelativeLayout>
+
+    <!--<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme">
+
+        <android.support.design.widget.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/AppTheme.AppBarOverlay">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/toolbarhigh"
+                app:popupTheme="@style/AppTheme.PopupOverlay" >
+
+                <TextView
+                    android:id="@+id/mTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textSize="20sp"
+                    android:maxLines="1"
+                    android:maxEms="8"
+                    android:ellipsize="end"
+                    android:textColor="@color/common_text_color" />
+
+
+
+                <ImageView
+                    android:id="@+id/imageAction2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical|right"
+                    android:paddingRight="15dp"
+                    android:paddingLeft="15dp"
+                    android:paddingTop="15dp"
+                    android:paddingBottom="15dp"
+                    android:src="@mipmap/ic_launcher"
+                    android:visibility="gone"/>
+
+                <ImageView
+                    android:id="@+id/imageAction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical|right"
+                    android:paddingRight="15dp"
+                    android:paddingLeft="15dp"
+                    android:paddingTop="15dp"
+                    android:paddingBottom="15dp"
+                    android:src="@mipmap/ic_launcher"
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/tvAction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical|right"
+                    android:gravity="center"
+                    android:textSize="@dimen/textsize_middle"
+                    android:paddingRight="20dp"
+                    android:paddingLeft="20dp"
+                    android:textColor="@color/white" />
+
+            </android.support.v7.widget.Toolbar>
+
+
+        </android.support.design.widget.AppBarLayout>
+
+
+
+    </android.support.design.widget.CoordinatorLayout>-->

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="25dp"
+    android:paddingRight="25dp"
+    tools:context=".activity.MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="40dp"
+            android:text="所属会所" />
+
+        <TextView
+            android:id="@+id/tv_club_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="80dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="40dp"
+            android:text="服务器地址" />
+
+        <TextView
+            android:id="@+id/server_address"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:hint="mqtt.fitalent.com.cn" />
+
+        <TextView
+            android:id="@+id/et_server_port"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:hint="61613" />
+    </LinearLayout>
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="状态---------------------------------------------------------------------------------------------" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tv_devices_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp" />
+
+        <TextView
+            android:id="@+id/tv_data_total_length"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp" />
+
+        <ImageView
+            android:id="@+id/iv_status_img"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/normal" />
+
+        <TextView
+            android:id="@+id/tv_status_tips"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="正常" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="  ---------------------------------------------------------------------------------------------" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="登录密码：" />
+
+    <EditText
+        android:id="@+id/et_pwd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="请输入密码"
+        android:text="admin@hrw20.21" />
+
+    <Button
+        android:id="@+id/btn_unregister"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="注销" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_check_update"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="检查更新"/>
+
+        <TextView
+            android:id="@+id/tv_version_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:textColor="@color/red_text"
+            android:textSize="20sp"
+            tools:text="当前版本为：1.0"/>
+    </LinearLayout>
+
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_status_log"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </androidx.core.widget.NestedScrollView>
+
+
+</LinearLayout>

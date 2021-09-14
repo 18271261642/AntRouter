@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.jkcq.antrouter">
+    <!-- android:sharedUserId="android.uid.system"-->
+
+    <application
+        android:name=".AntRouterApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".activity.SplashActivity"
+            android:launchMode="singleInstance"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter" />
+        </activity>
+        <activity android:name=".activity.RegActivity" />
+        <activity
+            android:name="com.jkcq.antrouter.activity.MainActivity"
+            android:launchMode="singleTask" />
+
+        <!-- Mqtt Service -->
+        <receiver
+            android:name=".receiver.BootCompleBroadcast"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter android:priority="1000">
+                <!--.接收启动完成的广播-->
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name="com.jkcq.antrouter.receiver.NetWorkChangReceiver">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
+                <action android:name="android.net.wifi.STATE_CHANGE" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name="org.eclipse.paho.android.service.MqttService"></service>
+
+    </application>
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <!--<uses-permission android:name="android.permission.READ_PHONE_STATE" />-->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA"></uses-permission>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!--声明接收启动完成广播的权限-->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"></uses-permission>
+
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+</manifest>

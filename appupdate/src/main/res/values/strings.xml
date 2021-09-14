@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">appupdate</string>
+    <string name="package_size">更新包大小: %1$s  M</string>
+    <string name="downloading">下载中...</string>
+</resources>

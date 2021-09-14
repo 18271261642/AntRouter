@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">@color/common_item_bg</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="loginbg">#ecedee</color>
+
+    <!--主色调 蓝色-->
+    <color name="mainColor_blue">#0979ff</color>
+    <!--深黑色字体颜色-->
+    <color name="deepBlack">#656565</color>
+    <color name="color_979797">#979797</color>
+    <!--浅黑色字体颜色-->
+    <color name="shallowBlack">#969696</color>
+    <!--分割线颜色-->
+    <color name="divderColor">#e4e4e4</color>
+    <!--背景颜色-->
+    <color name="bgColor">#ededed</color>
+    <!--白色字体颜色-->
+    <color name="whiteColor">#FFFFFF</color>
+    <!--白色字体颜色-->
+    <color name="white">#FFFFFF</color>
+    <!--橙色字体颜色-->
+    <color name="orangeColor">#e7634a</color>
+    <!--绿色线条-->
+    <color name="green">#83CB4C</color>
+
+    <color name="gray_text">#c6c6c6</color>
+    <color name="blue_text">#0793ff</color>
+    <color name="white_text">#ffffff</color>
+    <color name="black_text">#303030</color>
+    <color name="red_text">#ff0026</color>
+    <color name="gray_line">#e2e1e1</color>
+    <color name="bg_color">@color/common_bg</color>
+    <color name="transport">#00000000</color>
+    <color name="black">#000000</color>
+    <color name="bg_scan_code">#5e5e5e</color>
+    <color name="gray_line_color">#ababab</color>
+    <color name="title_bg_color">#06bfff</color>
+    <color name="setting_bg_color">#f4f4f4</color>
+
+    <color name="common_bg">#0A1324</color>
+    <color name="common_item_bg">#101D37</color>
+    <color name="common_result_bg">#1C2841</color>
+    <color name="common_text_color">#1DCE74</color>
+    <color name="common_tips_color">#D6D6D6</color>
+    <color name="common_thin_color">#38A9FE</color>
+    <color name="common_starder_color">@color/common_text_color</color>
+    <color name="common_chubby_color">#FFC936</color>
+    <color name="common_fat_color">#FF9050</color>
+    <color name="common_severe_obesity_color">#FC544B</color>
+    <color name="white_5">#0Dffffff</color>
+    <color name="sbp_start_color">#B964E0</color>
+    <color name="sbp_end_color">#E97DFA</color>
+    <color name="dbp_start_color">#70E0CA</color>
+    <color name="dbp_end_color">#3DC7A4</color>
+    <color name="color_DEB237">#DEB237</color>
+    <color name="color_EF894F">#EF894F</color>
+    <color name="color_00B167">#00B167</color>
+    <color name="color_87ED4D">#87ED4D</color>
+
+
+</resources>

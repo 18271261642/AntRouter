@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">单独使用AntRouter</string>
+
+
+    <string name="devicesnumber">手环数量 : %1$d</string>
+    <string name="receiver_data_length">本次接收到的数据长 : %1$d</string>
+</resources>
