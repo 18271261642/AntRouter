@@ -706,6 +706,8 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
         //ff 00 00 04 9e 2d 00 bf f7   ff 00 00 04 21 31 00 3c d7 ff 00 00 04 12 38 00 3c ed
         //0-27
         val receiveData = HexDump.bytesToHexString(data)
+
+        Log.e(tgs, "--11-ant接收的数据=$receiveData")
         mCurrentDataLength = receiveData.length
         //        String receiveData = "ff 00 00 04 21 31 00 3c d7 ff 00 00 04 12 38 00 3c ed ff 00 00 04 12 38 00 3c ed ff 00 00 04 12 38 00 3c ed";
         if (TextUtils.isEmpty(receiveData)) {
@@ -716,6 +718,9 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
              Log.e(Companion.TAG, "analysisData : " + receiveData)
          }*/
         val rawData = receiveData.split(" ").toTypedArray()
+
+        Log.e(tgs, "--22-ant接收的数据=$"+ rawData.contentToString())
+
         var index = 1
         if (rawData.size > 9) {
             index = rawData.size / 9
