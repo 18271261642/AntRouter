@@ -12,8 +12,11 @@ import okhttp3.Response
  * @Date 2019-10-11
  * @Description
  **/
+
 class CommentInterceptor : Interceptor {
+
     private var contentType = "application/json"
+
     var token: String by Preference(Preference.token, "")
     override fun intercept(chain: Interceptor.Chain): Response {
 

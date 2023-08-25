@@ -6,36 +6,52 @@ import android.os.Bundle
 import android.os.Handler
 import android.text.TextUtils
 import android.util.Log
+import android.widget.Button
 import com.jkcq.antrouter.AntRouterApplication
 import com.jkcq.antrouter.R
+import com.jkcq.antrouter.databinding.ActivitySplashBinding
 import com.jkcq.antrouter.http.NetRepository
 import com.jkcq.antrouter.utils.DeviceUtil
 import com.jkcq.antrouter.utils.NetUtils
 import com.jkcq.antrouter.utils.SavePreferencesData
 import com.jkcq.antrouter.utils.ToastUtils
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.activity_splash.*
 import java.util.*
 
 class SplashActivity : Activity() {
     val mNetRepository: NetRepository by lazy { NetRepository() }
     private var savePreferencesData: SavePreferencesData? = null
     private val mHandler = Handler()
+
+    private lateinit var viewBinding : ActivitySplashBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_splash)
+        viewBinding = ActivitySplashBinding.inflate(layoutInflater)
+        setContentView(viewBinding.root)
         //        doZhongHang();
         savePreferencesData = SavePreferencesData(this@SplashActivity)
         requstNetWort()
         //checkRegister()
-        btn_register_splash.setOnClickListener {
-            regiseterDevice(et_accout.text.toString(), et_pwd.text.toString())
+        findViewById<Button>(R.id.btn_register_splash).setOnClickListener {
+            regiseterDevice(viewBinding.etAccout.text.toString(), viewBinding.etPwd.text.toString())
             // startActivity(Intent(this@SplashActivity, RegActivity::class.java))
             // finish()
         }
-        btn_test.setOnClickListener {
+
+        viewBinding.btnTest.setOnClickListener {
             checkRegister()
+        }
+
+        val userName= savePreferencesData?.getStringData("user_account", "")
+       val pwd=  savePreferencesData?.getStringData("pwd", "")
+
+        if(!TextUtils.isEmpty(userName)){
+            viewBinding.etAccout.setText(userName.toString())
+
+        }
+
+        if(!TextUtils.isEmpty(pwd)){
+            viewBinding.etPwd.setText(pwd)
         }
     }
 
@@ -78,6 +94,11 @@ class SplashActivity : Activity() {
         Log.e("mac", "mac=" + DeviceUtil.getMac(AntRouterApplication.getApp()))
         mNetRepository.executeRequest({ mNetRepository.registerDevice(para) }, {
             ToastUtils.showToast(this, "注册成功")
+
+            savePreferencesData?.putStringData("user_account", userName)
+            savePreferencesData?.putStringData("pwd", pwd)
+
+
             token = it.token
             getclubInfo()
         }, {

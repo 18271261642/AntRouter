@@ -7,8 +7,10 @@ public class AllocationApi {
     //https://gateway.fitalent.com.cn/
     // public static String BaseUrl = "https://gateway.fitalent.com.cn";
     //public static String BaseUrl = "https://test.gateway.fitalent.com.cn";
-    public static final String BaseUrl = "https://test.hrw.fitalent.com.cn";//新的心率墙地址
+   // public static final String BaseUrl = "https://test.hrw.fitalent.com.cn";//新的心率墙地址
 
+//    public static final String BaseUrl = "https://test.hrw.mini-banana.com";
+    public static final String BaseUrl = "https://hrw.mini-banana.com";
 
     //获取俱乐部列表
     //https://gateway.fitalent.com.cn/gymDevice/device/antDevice/getClubInfoByMac

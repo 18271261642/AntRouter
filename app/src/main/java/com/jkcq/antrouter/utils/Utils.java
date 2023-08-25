@@ -139,6 +139,23 @@ public class Utils {
 
 
 
+    private  static StringBuffer stringBuffer = new StringBuffer();
+
+    /**
+     * 格式化hex数据
+     * @param array
+     * @return
+     */
+    public static String formatHex(byte[] array){
+        stringBuffer.delete(0,stringBuffer.length());
+
+        for(int i = 0;i<array.length;i++){
+            stringBuffer.append(String.format("%02x",array[i]));
+        }
+        return stringBuffer.toString();
+    }
+
+
     /** 添加数据包到数据缓存
      * @param receiveDataCache 当前缓存的数据
      * @param buffer 正在接收到的数据

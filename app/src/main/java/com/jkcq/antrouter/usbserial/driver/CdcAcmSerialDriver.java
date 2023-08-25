@@ -30,12 +30,16 @@ import android.hardware.usb.UsbRequest;
 import android.os.Build;
 import android.util.Log;
 
+import com.jkcq.antrouter.utils.Utils;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import timber.log.Timber;
 
 /**
  * USB CDC/ACM serial driver implementation.
@@ -109,17 +113,17 @@ public class CdcAcmSerialDriver implements UsbSerialDriver {
             try {
 
                 if (1 == mDevice.getInterfaceCount()) {
-                    Log.d(TAG, "device might be castrated ACM device, trying single interface logic");
+                    Log.e(TAG, "device might be castrated ACM device, trying single interface logic");
                     openSingleInterface();
                 } else {
-                    Log.d(TAG, "trying default interface logic");
+                    Log.e(TAG, "trying default interface logic");
                     openInterface();
                 }
 
                 if (mEnableAsyncReads) {
-                    Log.d(TAG, "Async reads enabled");
+                    Log.e(TAG, "Async reads enabled");
                 } else {
-                    Log.d(TAG, "Async reads disabled.");
+                    Log.e(TAG, "Async reads disabled.");
                 }
 
 
@@ -140,10 +144,10 @@ public class CdcAcmSerialDriver implements UsbSerialDriver {
             // in the linux kernel
 
             mControlInterface = mDevice.getInterface(0);
-            Log.d(TAG, "Control iface=" + mControlInterface);
+            Log.e(TAG, "Control iface=" + mControlInterface);
 
             mDataInterface = mDevice.getInterface(0);
-            Log.d(TAG, "data iface=" + mDataInterface);
+            Log.e(TAG, "data iface=" + mDataInterface);
 
             if (!mConnection.claimInterface(mControlInterface, true)) {
                 throw new IOException("Could not claim shared control/data interface.");
@@ -152,7 +156,7 @@ public class CdcAcmSerialDriver implements UsbSerialDriver {
             int endCount = mControlInterface.getEndpointCount();
 
             if (endCount < 3) {
-                Log.d(TAG, "not enough endpoints - need 3. count=" + mControlInterface.getEndpointCount());
+                Log.e(TAG, "not enough endpoints - need 3. count=" + mControlInterface.getEndpointCount());
                 throw new IOException("Insufficient number of endpoints(" + mControlInterface.getEndpointCount() + ")");
             }
 
@@ -164,15 +168,15 @@ public class CdcAcmSerialDriver implements UsbSerialDriver {
                 UsbEndpoint ep = mControlInterface.getEndpoint(i);
                 if ((ep.getDirection() == UsbConstants.USB_DIR_IN) &&
                         (ep.getType() == UsbConstants.USB_ENDPOINT_XFER_INT)) {
-                    Log.d(TAG, "Found controlling endpoint");
+                    Log.e(TAG, "Found controlling endpoint");
                     mControlEndpoint = ep;
                 } else if ((ep.getDirection() == UsbConstants.USB_DIR_IN) &&
                         (ep.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK)) {
-                    Log.d(TAG, "Found reading endpoint");
+                    Log.e(TAG, "Found reading endpoint");
                     mReadEndpoint = ep;
                 } else if ((ep.getDirection() == UsbConstants.USB_DIR_OUT) &&
                         (ep.getType() == UsbConstants.USB_ENDPOINT_XFER_BULK)) {
-                    Log.d(TAG, "Found writing endpoint");
+                    Log.e(TAG, "Found writing endpoint");
                     mWriteEndpoint = ep;
                 }
 
@@ -180,7 +184,7 @@ public class CdcAcmSerialDriver implements UsbSerialDriver {
                 if ((mControlEndpoint != null) &&
                         (mReadEndpoint != null) &&
                         (mWriteEndpoint != null)) {
-                    Log.d(TAG, "Found all required endpoints");
+                    Log.e(TAG, "Found all required endpoints");
                     break;
                 }
             }
@@ -188,37 +192,39 @@ public class CdcAcmSerialDriver implements UsbSerialDriver {
             if ((mControlEndpoint == null) ||
                     (mReadEndpoint == null) ||
                     (mWriteEndpoint == null)) {
-                Log.d(TAG, "Could not establish all endpoints");
+                Log.e(TAG, "Could not establish all endpoints");
                 throw new IOException("Could not establish all endpoints");
             }
         }
 
         private void openInterface() throws IOException {
-            Log.d(TAG, "claiming interfaces, count=" + mDevice.getInterfaceCount());
+            Log.e(TAG, "claiming interfaces, count=" + mDevice.getInterfaceCount());
 
             mControlInterface = mDevice.getInterface(0);
-            Log.d(TAG, "Control iface=" + mControlInterface);
+            Log.e(TAG, "Control iface=" + mControlInterface);
             // class should be USB_CLASS_COMM
 
-            if (!mConnection.claimInterface(mControlInterface, true)) {
+            boolean isClaim = mConnection.claimInterface(mControlInterface, true);
+            Timber.e("------isClaim="+isClaim);
+            if (!isClaim) {
                 throw new IOException("Could not claim control interface.");
             }
 
             mControlEndpoint = mControlInterface.getEndpoint(0);
-            Log.d(TAG, "Control endpoint direction: " + mControlEndpoint.getDirection());
+            Log.e(TAG, "Control endpoint direction: " + mControlEndpoint.getDirection());
 
-            Log.d(TAG, "Claiming data interface.");
+            Log.e(TAG, "Claiming data interface.");
             mDataInterface = mDevice.getInterface(1);
-            Log.d(TAG, "data iface=" + mDataInterface);
+            Log.e(TAG, "data iface=" + mDataInterface);
             // class should be USB_CLASS_CDC_DATA
 
             if (!mConnection.claimInterface(mDataInterface, true)) {
                 throw new IOException("Could not claim data interface.");
             }
             mReadEndpoint = mDataInterface.getEndpoint(1);
-            Log.d(TAG, "Read endpoint direction: " + mReadEndpoint.getDirection());
+            Log.e(TAG, "Read endpoint direction: " + mReadEndpoint.getDirection());
             mWriteEndpoint = mDataInterface.getEndpoint(0);
-            Log.d(TAG, "Write endpoint direction: " + mWriteEndpoint.getDirection());
+            Log.e(TAG, "Write endpoint direction: " + mWriteEndpoint.getDirection());
         }
 
         private int sendAcmControlMessage(int request, int value, byte[] buf) {
@@ -286,7 +292,10 @@ public class CdcAcmSerialDriver implements UsbSerialDriver {
 
         @Override
         public int write(byte[] src, int timeoutMillis) throws IOException {
-            // TODO(mikey): Nearly identical to FtdiSerial write. Refactor.
+
+            Timber.e("----------写入数据="+ Utils.formatHex(src));
+
+            //  Nearly identical to FtdiSerial write. Refactor.
             int offset = 0;
 
             while (offset < src.length) {
@@ -304,18 +313,26 @@ public class CdcAcmSerialDriver implements UsbSerialDriver {
                         System.arraycopy(src, offset, mWriteBuffer, 0, writeLength);
                         writeBuffer = mWriteBuffer;
                     }
+
+                    Timber.e("--------mConnection是否为空="+(mConnection == null)+" writeBuffer="+Utils.formatHex(writeBuffer));
+
                     if (mConnection == null)
                         throw new IOException("Error writing " + writeLength
                                 + " bytes at offset " + offset + " length=" + src.length);
+
                     amtWritten = mConnection.bulkTransfer(mWriteEndpoint, writeBuffer, writeLength,
                             timeoutMillis);
                 }
+
+                Timber.e("----------amtWritten="+amtWritten);
+
+
                 if (amtWritten <= 0) {
                     throw new IOException("Error writing " + writeLength
                             + " bytes at offset " + offset + " length=" + src.length);
                 }
 
-                Log.d(TAG, "Wrote amt=" + amtWritten + " attempted=" + writeLength);
+                Log.e(TAG, "Wrote amt=" + amtWritten + " attempted=" + writeLength);
                 offset += amtWritten;
             }
             return offset;

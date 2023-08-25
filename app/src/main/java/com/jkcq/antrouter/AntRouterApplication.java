@@ -5,6 +5,8 @@ import android.app.Application;
 import com.jkcq.antrouter.bean.ClubInfo;
 import com.tencent.bugly.crashreport.CrashReport;
 
+import timber.log.Timber;
+
 /*
  *
  * @author mhj
@@ -29,13 +31,29 @@ public class AntRouterApplication extends Application {
         return instance;
     }
 
+
+    private StringBuilder stringBuilder = new StringBuilder();
     @Override
     public void onCreate() {
         super.onCreate();
+        instance = this;
         initApp();
-        CrashReport.initCrashReport(getApplicationContext(), "decceb56a0", false);
+        CrashReport.initCrashReport(this, "5987a17450", false);
         //CrashHandler crashHandler = CrashHandler.getInstance();
-        //crashHandler.init(getApplicationContext());
+        Timber.plant(new DebugLoggerTree());
+    }
+
+
+    public void setStringBuilder(String str){
+        stringBuilder.append(str);
+    }
+
+    public String getStringBuilder(){
+        return stringBuilder.toString();
+    }
+
+    public void clearStringBuilder(){
+        stringBuilder.delete(0,stringBuilder.length());
     }
 
 }

@@ -6,6 +6,9 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.TextUtils
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.jkcq.antrouter.AntRouterApplication
@@ -20,10 +23,23 @@ import com.jkcq.antrouter.utils.PermissionUtil
 import com.jkcq.antrouter.utils.SavePreferencesData
 import com.jkcq.antrouter.utils.ToastUtils
 import com.jkcq.appupdate.ApkDownLoadManager
-import kotlinx.android.synthetic.main.activity_reg.*
+
 import java.util.*
 
 class RegActivity : Activity(), MainActivityView {
+
+
+    private var btn_clear_cache : Button ?= null
+    private var btn_unregister : Button ?= null
+    private var et_pwd : EditText ?= null
+    private var tv_version_info : TextView ?= null
+    private var btn_check_update : Button ?= null
+    private var btn_back : Button ?= null
+
+
+
+
+
     val mNetRepository: NetRepository by lazy { NetRepository() }
     private var savePreferencesData: SavePreferencesData? = null
 
@@ -35,21 +51,30 @@ class RegActivity : Activity(), MainActivityView {
         setContentView(R.layout.activity_reg)
         savePreferencesData = SavePreferencesData(this@RegActivity)
 
+        btn_clear_cache = findViewById(R.id.btn_clear_cache)
+        btn_unregister = findViewById(R.id.btn_unregister)
+        et_pwd = findViewById(R.id.et_pwd)
+        tv_version_info = findViewById(R.id.tv_version_info)
+        btn_check_update = findViewById(R.id.btn_check_update)
+        btn_back = findViewById(R.id.btn_back)
+
+
+
         getclubInfo()
 
-        btn_clear_cache.setOnClickListener {
+        btn_clear_cache?.setOnClickListener {
             savePreferencesData?.clear()
             Toast.makeText(this@RegActivity, "清除缓存成功", Toast.LENGTH_LONG).show()
 
         }
-        btn_unregister.setOnClickListener {
-            unRegist(et_pwd.text.toString())
+        btn_unregister?.setOnClickListener {
+            unRegist(et_pwd!!.text.toString())
         }
-        tv_version_info.text = "当前版本为：${getAppVersionName(packageName)}"
-        btn_check_update.setOnClickListener {
+        tv_version_info?.text = "当前版本为：${getAppVersionName(packageName)}"
+        btn_check_update?.setOnClickListener {
             checkPermisson()
         }
-        btn_back.setOnClickListener { jumpToMain() }
+        btn_back?.setOnClickListener { jumpToMain() }
     }
 
 
@@ -113,7 +138,7 @@ class RegActivity : Activity(), MainActivityView {
     fun getAppVersionName(packageName: String?): String? {
         return if (TextUtils.isEmpty(packageName)) "" else try {
             val pm: PackageManager = getPackageManager()
-            val pi = pm.getPackageInfo(packageName, 0)
+            val pi = packageName?.let { pm.getPackageInfo(it, 0) }
             pi?.versionName
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()

@@ -32,7 +32,7 @@ public class NetWorkChangReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (WifiManager.WIFI_STATE_CHANGED_ACTION.equals(intent.getAction())) {// 监听wifi的打开与关闭，与wifi的连接无关
             int wifiState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, 0);
-            Log.e("TAG", "wifiState:" + wifiState);
+            Log.e("TAG", "--wifiState:" + wifiState);
             switch (wifiState) {
                 case WifiManager.WIFI_STATE_DISABLED:
                     break;
@@ -48,7 +48,7 @@ public class NetWorkChangReceiver extends BroadcastReceiver {
                 //如果当前的网络连接成功并且网络连接可用
                 if (NetworkInfo.State.CONNECTED == info.getState() && info.isAvailable()) {
                     if (info.getType() == ConnectivityManager.TYPE_WIFI || info.getType() == ConnectivityManager.TYPE_MOBILE) {
-                        Log.i("TAG", getConnectionType(info.getType()) + "连上");
+                        Log.e("TAG", getConnectionType(info.getType()) + "连上");
                        // Intent intent1 = new Intent(context, SplashActivity.class);
                        // intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         //context.startActivity(intent1);

@@ -4,7 +4,7 @@
     <!-- android:sharedUserId="android.uid.system"-->
 
     <application
-        android:name=".AntRouterApplication"
+        android:name="com.jkcq.antrouter.AntRouterApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -15,7 +15,8 @@
             android:name=".activity.SplashActivity"
             android:launchMode="singleInstance"
             android:screenOrientation="landscape"
-            android:windowSoftInputMode="stateHidden">
+            android:windowSoftInputMode="stateHidden"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -44,7 +45,8 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name="com.jkcq.antrouter.receiver.NetWorkChangReceiver">
+        <receiver android:name="com.jkcq.antrouter.receiver.NetWorkChangReceiver"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
                 <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
@@ -52,10 +54,10 @@
             </intent-filter>
         </receiver>
 
-        <service android:name="org.eclipse.paho.android.service.MqttService"></service>
+        <service android:name="org.eclipse.paho.android.service.MqttService"/>
 
     </application>
-    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -63,12 +65,14 @@
 
     <!--<uses-permission android:name="android.permission.READ_PHONE_STATE" />-->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.CAMERA"></uses-permission>
+    <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.INTERNET" />
     <!--声明接收启动完成广播的权限-->
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
+    <uses-feature android:name="android.hardware.usb.host" />
 </manifest>

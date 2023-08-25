@@ -1,7 +1,9 @@
 package com.jkcq.antrouter.activity
 
+import android.app.Activity
 import android.content.*
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbManager
 import android.net.ConnectivityManager
@@ -9,14 +11,17 @@ import android.os.*
 import android.text.TextUtils
 import android.util.Log
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import android.widget.AdapterView.OnItemSelectedListener
 import androidx.appcompat.app.AlertDialog
 import com.google.gson.Gson
+import com.jkcq.antrouter.AllocationApi
 import com.jkcq.antrouter.AntRouterApplication
 import com.jkcq.antrouter.R
 import com.jkcq.antrouter.adapter.SpinnerClubListAdapter
 import com.jkcq.antrouter.bean.*
+import com.jkcq.antrouter.databinding.ActivityMainBinding
 import com.jkcq.antrouter.http.NetRepository
 import com.jkcq.antrouter.listener.AntReceiveListener
 import com.jkcq.antrouter.mvp.BaseMVPActivity
@@ -29,20 +34,16 @@ import com.jkcq.appupdate.ApkDownLoadManager
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_main.btn_check_update
-import kotlinx.android.synthetic.main.activity_main.btn_unregister
-import kotlinx.android.synthetic.main.activity_main.et_pwd
-import kotlinx.android.synthetic.main.activity_main.tv_version_info
-import kotlinx.android.synthetic.main.activity_reg.*
 import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import timber.log.Timber
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
+import kotlin.experimental.and
 
 class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(),
     MainActivityView {
@@ -50,6 +51,8 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
 
     private val tgs = "MainActivity"
 
+
+    private lateinit var viewBinding:  ActivityMainBinding
 
     private val logStr = StringBuffer()
 
@@ -77,11 +80,18 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
     // private val SERVER_URL = "120.77.62.190:61613"
 
     private val SERVER_URL = "mqtt.fitalent.com.cn:61613"
+
+
+    //颜色值
+    private val colors = mutableListOf<Int>(Color.parseColor("#9B30FF"),Color.YELLOW)
+
+
+
     private val mHandler: Handler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             super.handleMessage(msg)
             when (msg.what) {
-                HANDLE_WHAT_TYPE -> tv_status_log.text = logStr.toString()
+                HANDLE_WHAT_TYPE -> viewBinding.tvStatusLog.text = logStr.toString()
             }
         }
     }
@@ -95,9 +105,48 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
     var receiverData = ""
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        viewBinding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(viewBinding.root)
         requstNetWort()
         setSettingItem()
+
+
+        viewBinding.tvStatusLog.text = "地址:"+AllocationApi.BaseUrl
+
+        viewBinding.clearLogTv.setOnClickListener {
+            sb.delete(0, sb.length)
+            logStr.delete(0, logStr.length)
+             viewBinding.ntLogTv.text = ""
+
+            viewBinding.tvStatusLog.text = ""
+        }
+
+        viewBinding.clickInitBtn.setOnClickListener {
+            AntRouterApplication.getApp().clearStringBuilder()
+             viewBinding.ntLogTv.text = ""
+            //afterGetUsbPermission(null,"click")
+            getDevice()
+        }
+
+        viewBinding.getInitBtn.setOnClickListener {
+             viewBinding.ntLogTv.text = AntRouterApplication.getApp().stringBuilder
+
+        }
+
+        inputMethodManager(this)
+    }
+
+
+    private fun getDevice() {
+        val usbManager = getSystemService(USB_SERVICE) as UsbManager
+        val deviceList = usbManager.deviceList
+        val deviceIterator: Iterator<UsbDevice> = deviceList.values.iterator()
+        val usbDevices: MutableList<UsbDevice> = ArrayList()
+        while (deviceIterator.hasNext()) {
+            val device = deviceIterator.next()
+            usbDevices.add(device)
+            Log.e("getDeviceList", "getDeviceList: " + device.productName)
+        }
     }
 
 
@@ -117,13 +166,14 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
         if (!TextUtils.isEmpty(clubId)) {
             isClubNormal = true
             CLUB_ID = clubId!!
-            spinner!!.visibility = View.GONE
-            tv_club_name.visibility = View.VISIBLE
-            tv_club_name.text =
+            viewBinding.spinner.visibility = View.GONE
+            viewBinding.tvClubName.visibility = View.VISIBLE
+            viewBinding.tvClubName.text =
                 savePreferencesData!!.getStringData(SavePreferencesData.SP_KEY_CLUBNAME)
+
         }
         //        initMqtt();
-        spinner!!.onItemSelectedListener = object : OnItemSelectedListener {
+        viewBinding.spinner.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(adapterView: AdapterView<*>?, view: View, i: Int, l: Long) {
                 mCurrentIndex = i
             }
@@ -135,26 +185,26 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
         val filterusb = IntentFilter(ACTION_USB_PERMISSION)
         registerReceiver(mUsbPermissionActionReceiver, filterusb)
         EventBus.getDefault().register(this)
-        afterGetUsbPermission(null)
+        afterGetUsbPermission(null, "has next")
         sendHeartRateBySecond()
         //    tv_save.setOnClickListener { initMqtt() }
     }
 
 
     fun setSettingItem() {
-        btn_unregister.setOnClickListener {
-            unRegist(et_pwd.text.toString())
+        viewBinding.btnUnregister.setOnClickListener {
+            unRegist(viewBinding.etPwd.text.toString())
         }
-        tv_version_info.text = "当前版本为：${getAppVersionName(packageName)}"
-        btn_check_update.setOnClickListener {
+        viewBinding.tvVersionInfo.text = "当前版本为：${getAppVersionName(packageName)}"
+        viewBinding.btnCheckUpdate.setOnClickListener {
             checkPermisson()
         }
     }
 
     fun getAppVersionName(packageName: String?): String? {
         return if (TextUtils.isEmpty(packageName)) "" else try {
-            val pm: PackageManager = getPackageManager()
-            val pi = pm.getPackageInfo(packageName, 0)
+            val pm: PackageManager = packageManager
+            val pi = packageName?.let { pm.getPackageInfo(it, 0) }
             pi?.versionName
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
@@ -173,7 +223,6 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
                         checkUpdata()
                     } else {
                         Toast.makeText(this@MainActivity, "没有权限", Toast.LENGTH_SHORT).show()
-
                     }
                 }
             })
@@ -272,7 +321,7 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
 //        this.clubBean = clubBean;
         if (clubBean != null) {
             adapter = SpinnerClubListAdapter(this@MainActivity, clubBean)
-            spinner!!.adapter = adapter
+            viewBinding.spinner.adapter = adapter
         }
     }
 
@@ -286,16 +335,17 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
         if (info != null && !TextUtils.isEmpty(info.id)) {
             CLUB_ID = info.id
             isClubNormal = true
-            spinner!!.visibility = View.GONE
-            tv_club_name.visibility = View.VISIBLE
-            tv_club_name.text = info.name
+            viewBinding.spinner.visibility = View.GONE
+
+            viewBinding.tvClubName.visibility = View.VISIBLE
+            viewBinding.tvClubName.text = info.name
             savePreferencesData!!.putStringData(
                 SP_KEY_MQTT_CLUBINFO,
                 JsonUtils.getInstance().toJSON(info)
             )
         } else {
-            tv_club_name.visibility = View.GONE
-            spinner!!.visibility = View.VISIBLE
+            viewBinding.tvClubName.visibility = View.GONE
+            viewBinding.spinner.visibility = View.VISIBLE
             isClubNormal = false
             changeStatus("网关设备未注册")
         }
@@ -317,14 +367,19 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
                         intent.getParcelableExtra<Parcelable>(UsbManager.EXTRA_DEVICE) as UsbDevice
 
 
-                    Log.e(tgs,"--------userDevice="+Gson().toJson(usbDevice)+"\n"+usbDevice.deviceName+"\n"+usbDevice.deviceId)
+                    Log.e(
+                        tgs,
+                        "--------userDevice=" + Gson().toJson(usbDevice) + "\n" + usbDevice.deviceName + "\n" + usbDevice.deviceId
+                    )
 
 
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, true)) {
                         //user choose YES for your previously popup window asking for grant perssion for this usb device
+                        Timber.e("-------------afterGetUsbPermission=" + usbDevice.productId)
+
                         if (null != usbDevice) {
                             if (usbDevice.productId == 24857 && usbDevice.vendorId == 1003) {
-                                afterGetUsbPermission(usbDevice)
+                                afterGetUsbPermission(usbDevice, "mUsbPermissionActionReceiver")
                             }
                         }
                     } else {
@@ -339,7 +394,8 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
     }
 
     //取到权限之后，打开接收器服务
-    fun afterGetUsbPermission(device: UsbDevice?) {
+    fun afterGetUsbPermission(device: UsbDevice?, tag: String) {
+        Timber.e("------来源=" + tag)
         initUsbControl()
         val usbFilter = IntentFilter()
         usbFilter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED)
@@ -353,8 +409,8 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
      */
     private fun initUsbControl() {
         mTemperatureUsbControl = TemperatureUsbControl(this@MainActivity)
-        mTemperatureUsbControl!!.initUsbControl()
         mTemperatureUsbControl!!.setAntReceiveListener(antReceiveListener)
+        mTemperatureUsbControl!!.initUsbControl()
     }
 
     /**
@@ -363,6 +419,9 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
     private val mUsbReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val action = intent.action
+
+            Timber.e("-----mUsbReceiver----action=" + action)
+
             if (UsbManager.ACTION_USB_DEVICE_ATTACHED == action) {
                 //设备插入
                 mTemperatureUsbControl!!.initUsbControl()
@@ -432,6 +491,7 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
 
             @Throws(Exception::class)
             override fun messageArrived(topic: String, message: MqttMessage) {
+
                 Log.e("Incoming message: ", String(message.payload))
             }
 
@@ -558,6 +618,10 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
     private var path = ""
     private var current_time = ""
 
+    private val sb = StringBuffer()
+
+    private var colorIndex = 0
+
     //每一分钟
     private val mTotalMap = ConcurrentHashMap<String, FirstRecevicerBean>()
     private val mAllreadyPaserPackage = 0 // 累计解析包数
@@ -565,44 +629,72 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
         override fun handleMessage(msg: Message) {
             super.handleMessage(msg)
             when (msg.what) {
+                0x05 -> {
+                    val msg = msg.obj as String
+                    sb.append(msg).append("\n")
+                    if (sb.length / 18 > 100) {
+                        sb.delete(0, sb.length)
+                    }
+
+
+                    if(colorIndex == 1){
+                        colorIndex = 0
+                    }else{
+                        colorIndex = 1
+                    }
+//                    parentBgLayout.setBackgroundColor(colors[colorIndex])
+                     viewBinding.ntLogTv.text =sb.toString()
+                }
+
+
                 HANDLER_MESSAGES_CODE -> {
                     val testStr = resources.getString(R.string.devicesnumber)
                     val result = String.format(testStr, mCurrentPublishMap.size)
-                    tv_devices_number.text = result
+
+                         val st =  mCurrentPublishMap.toString()
+                    sb.append(st+"\n")
+                    if (sb.length / 18 > 100) {
+                        sb.delete(0, sb.length)
+                    }
+                     viewBinding.ntLogTv.text =sb.toString()
+
+                    viewBinding.tvDevicesNumber.text = result
                     val receiverData = resources.getString(R.string.receiver_data_length)
                     val data = String.format(receiverData, mCurrentDataLength)
-                    tv_data_total_length.text = data
-                    mCurrentDataLength = 0
+                    viewBinding.tvDataTotalLength.text = data
 
+                    mCurrentDataLength = 0
+                    Log.e(tgs, "------------USB状态=" + isUsbNormal + " MQTT=" + isUsbNormal)
                     //0 正常，1 异常
                     if (isMqttNormal && isUsbNormal && isClubNormal) {
-                        iv_status_img.setImageResource(R.drawable.normal)
-                        tv_status_tips.text = "正常"
+                        viewBinding.ivStatusImg.setImageResource(R.drawable.normal)
+                        viewBinding.tvStatusTips.text = "正常"
                         //mActPresenter.uploadStatus(0, "正常");
                     } else {
-                        iv_status_img.setImageResource(R.drawable.error)
+                        viewBinding.ivStatusImg.setImageResource(R.drawable.error)
                         if (!isUsbNormal && !isMqttNormal && !isClubNormal) {
-                            tv_status_tips.text = "异常 : 请确保 1、Ant设备已注册，2、服务器启动且地址正确，3、接收器连接正常"
+                            viewBinding.tvStatusTips.text = "异常 : 请确保 1、Ant设备已注册，2、服务器启动且地址正确，3、接收器连接正常"
                         } else {
                             if (!isMqttNormal && !isUsbNormal) {
-                                tv_status_tips.text = "异常 : MQTT未连接和USB未连接"
+                                viewBinding.tvStatusTips.text = "异常 : MQTT未连接和USB未连接"
                                 //mActPresenter.uploadStatus(1, "异常 : MQTT未连接和USB未连接");
+
                             } else if (!isMqttNormal && !isClubNormal) {
-                                tv_status_tips.text = "异常 : MQTT未连接和设备未注册"
+                                viewBinding.tvStatusTips.text = "异常 : MQTT未连接和设备未注册"
                                 //mActPresenter.uploadStatus(1, "异常 : MQTT未连接和设备未注册");
                             } else if (!isUsbNormal && !isClubNormal) {
-                                tv_status_tips.text = "异常 : USB未连接和设备未注册"
+                                viewBinding.tvStatusTips.text = "异常 : USB未连接和设备未注册"
                                 // mActPresenter.uploadStatus(1, "异常 : USB未连接和设备未注册");
                             } else if (!isUsbNormal) {
                                 //mActPresenter.uploadStatus(1, "异常 : USB未连接");
-                                tv_status_tips.text = "异常 : USB未连接"
+                                viewBinding.tvStatusTips.text = "异常 : USB未连接"
                             } else if (!isMqttNormal) {
                                 // mActPresenter.uploadStatus(1, "异常 : MQTT连接异常");
-                                tv_status_tips.text = "异常 : MQTT连接 $SERVER_URL 异常"
+                                viewBinding.tvStatusTips.text = "异常 : MQTT连接 $SERVER_URL 异常"
                                 initMqtt()
                             } else if (isClubNormal) {
                                 // mActPresenter.uploadStatus(1, "异常 : 设备未注册");
-                                tv_status_tips.text = "异常 : 设备未注册"
+                                viewBinding.tvStatusTips.text = "异常 : 设备未注册"
                             }
                         }
                     }
@@ -642,7 +734,11 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
                 }
                 // publishMessage(CLUB_ID + "/" + HEART_RATE_SYSTEM, stringBuffer.toString());
                 handler.sendEmptyMessage(HANDLER_MESSAGES_CODE)
-                LogUtil.e( """$CLUB_ID    size=${mCurrentPublishMap.size}
+
+                Timber.e("------发布数据="+CLUB_ID+"  size="+mCountCurrentMap.size+" "+stringBuffer.toString())
+
+                LogUtil.e(
+                    """$CLUB_ID    size=${mCurrentPublishMap.size}
     publishMessage=$stringBuffer
     """.trimIndent()
                 )
@@ -683,10 +779,81 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
         mHandler.sendEmptyMessage(HANDLE_WHAT_TYPE)
     }
 
+
+    //解析新的W560B
+    /**
+     *
+    11 4E 00 00 05 75  98 96 83  39 3D C0 83 96 78 01 20 D1
+    11 4E 00    数据头
+    00     去掉最高位 值为0有效(非0数据过滤不接收)
+    该byte为协议定义，用户不能修改
+    05 75     为项目名 575
+    98 96 83     为SN  10000003
+    39     为电池百分比 57%
+    3D     为心率数据 61
+    该byte为协议定义，用户不能修改
+     */
+    private fun analysisNewW560BData(data: ByteArray) {
+        if (data.size != 18) {
+            return
+        }
+        if ((data[0] and 0xff.toByte()).toInt() == 17 && (data[1] and 0xff.toByte()).toInt() == 78 && (data[2] and 0xff.toByte()).toInt() == 0) {
+            val devicesSN = StringBuffer()
+            // devicesSN.append(resultData[1])
+            devicesSN.append(data[6])
+            devicesSN.append(data[7])
+            devicesSN.append(data[8])
+            var sn = devicesSN.toString().toInt(16).toString()
+            //            sn = "000000" + sn;
+            if (sn.length < 10) {
+                val addSize = 10 - sn.length
+                var zero = ""
+                for (k in 0 until addSize) {
+                    zero = zero + "0"
+                }
+                sn = zero + sn
+
+            }
+            //心率
+            val heartValue = data.get(10).toInt()
+            //电量
+            var battery = data.get(9).toInt()
+
+            val str = sn + "_" + heartValue + "_" + battery
+
+            mCurrentMap[sn] = str
+        }
+
+
+    }
+
+
     /**
      * @param data
      */
     private fun updateReceivedData(data: ByteArray) {
+
+        val sourceStr = Utils.formatHex(data)
+//        if(data.size == 9 && ((data[0] and 0xff.toByte()).toInt() == 0) && ((data[1] and 0xff.toByte()).toInt() == 5) ){
+//            val msg = handler.obtainMessage()
+//            msg.obj =  DateUtils.getStrTime(System.currentTimeMillis(),"yyyy-MM-dd HH:mm:ss")+"  "+sourceStr +" 电量: "+(data[6] and 0xFF.toByte()).toInt()+" 心率："+(data[7] and 0xFF.toByte()).toInt()
+//            msg.what = 0x05
+//            handler.sendMessage(msg)
+//        }
+
+
+//        val msg = handler.obtainMessage()
+//        msg.obj =  DateUtils.getStrTime(System.currentTimeMillis(),"yyyy-MM-dd HH:mm:ss")+"  "+sourceStr +" 电量: "+(data[6] and 0xFF.toByte()).toInt()+" 心率："+(data[7] and 0xFF.toByte()).toInt()
+//        msg.what = 0x05
+//        handler.sendMessage(msg)
+
+
+//        Log.e(tgs, "-------返回数据=" + Utils.formatHex(data))
+
+
+//        analysisNewW560BData(data)
+//        return
+
 
         //累计字节数
         mTotalBytes = mTotalBytes + data.size
@@ -707,6 +874,14 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
         //0-27
         val receiveData = HexDump.bytesToHexString(data)
 
+        //W575格式 00 05 75 98 96 8d 35 5a 9c
+        //w68b    00 55 01 86 be 27 46 ac a1
+
+//        if(receiveData.length == 9 && (receiveData[0].code == 0x00) && receiveData[1].code == 5){
+//
+//            return
+//        }
+
         Log.e(tgs, "--11-ant接收的数据=$receiveData")
         mCurrentDataLength = receiveData.length
         //        String receiveData = "ff 00 00 04 21 31 00 3c d7 ff 00 00 04 12 38 00 3c ed ff 00 00 04 12 38 00 3c ed ff 00 00 04 12 38 00 3c ed";
@@ -719,7 +894,7 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
          }*/
         val rawData = receiveData.split(" ").toTypedArray()
 
-        Log.e(tgs, "--22-ant接收的数据=$"+ rawData.contentToString())
+        Log.e(tgs, "--22-ant接收的数据=$" + rawData.contentToString())
 
         var index = 1
         if (rawData.size > 9) {
@@ -729,34 +904,73 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
              Companion.TAG,
              "data1 : $receiveData index=$index" + "resultData[1]=" + rawData[1] + "rawData.size=" + rawData.size
          )*/
+
+        Log.e(tgs,"-----333----w575="+rawData[0]+"=="+rawData[1])
+
+        if(rawData.size == 9 && (rawData[0].toInt() == 0) && rawData[1].toInt() == 5){
+            analysisData(rawData,true)
+        }else{
+            for (i in 0 until index) {
+                val resultData = Arrays.copyOfRange(rawData, i * 9, 9 * (i + 1))
+                //        String time =  DateUtils.getStrTime(System.currentTimeMillis());
+                //ff是实时数据，fe是历史数据
+                if (resultData[1].equals("05")) {
+                    analysisData(resultData,true)
+                }
+            }
+        }
+
+
+
         if (rawData.size == 9 && rawData[1].equals("55")) {
-            analysisData(rawData)
+            analysisData(rawData,false)
         } else {
             for (i in 0 until index) {
                 val resultData = Arrays.copyOfRange(rawData, i * 9, 9 * (i + 1))
                 //        String time =  DateUtils.getStrTime(System.currentTimeMillis());
                 //ff是实时数据，fe是历史数据
                 if (resultData[1].equals("55")) {
-                    analysisData(resultData)
+                    analysisData(resultData,false)
                 }
             }
         }
     }
 
-    private fun analysisData(resultData: Array<String>) {
+
+    //W575的解析
+    private fun analysisW575Data(resultData: Array<String>){
+
+    }
 
 
+
+
+
+
+    private fun analysisData(resultData: Array<String>,isW575 : Boolean) {
         try {
             //设备SN
             val devicesSN = StringBuffer()
+
+            if(isW575){
+                devicesSN.append(resultData[3])
+                devicesSN.append(resultData[4])
+                devicesSN.append(resultData[5])
+            }else{
+                devicesSN.append(resultData[2])
+                devicesSN.append(resultData[3])
+                devicesSN.append(resultData[4])
+            }
+
+
             // devicesSN.append(resultData[1])
-            devicesSN.append(resultData[2])
-            devicesSN.append(resultData[3])
-            devicesSN.append(resultData[4])
+
             var sn = devicesSN.toString().toInt(16).toString()
+            LogUtil.e("----SN数据="+sn)
+            val snLength = 8
             //            sn = "000000" + sn;
-            if (sn.length < 10) {
-                val addSize = 10 - sn.length
+            if (sn.length < snLength) {
+                val addSize = snLength - sn.length
                 var zero = ""
                 for (k in 0 until addSize) {
                     zero = zero + "0"
@@ -767,7 +981,7 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
 
             //int sn = Integer.parseInt(devicesSN.toString(), 16);
             //设备电量
-            val devicesEnergy = resultData[5]
+            val devicesEnergy = if(isW575) resultData[6] else resultData[5]
             val energy = devicesEnergy.toInt(16)
             //心率
             val heartRateStr = resultData[7]
@@ -777,7 +991,7 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
             Log.e(Companion.TAG, "str : " + str + "heartRateStr=" + heartRateStr)
             mCurrentMap[sn] = str
         } catch (e: Exception) {
-
+            e.printStackTrace()
         }
 
         /*resultData.forEach {
@@ -789,7 +1003,7 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
 
     companion object {
         private const val ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION"
-        private val TAG = MainActivity::class.java.simpleName
+        private val TAG = "MainActivity"
         private const val HANDLE_WHAT_TYPE = 1
         private const val SP_KEY_MQTT_CLUBINFO = "sp_key_mqtt_clubinfo"
         private const val HANDLER_MESSAGES_CODE = 111
@@ -889,4 +1103,19 @@ class MainActivity : BaseMVPActivity<MainActivityView?, MainActivityPresenter?>(
     //
     //
     //    }
+
+
+    /**
+     * 隐藏软键盘(只适用于activity，不适用于fragment)
+     */
+   private fun inputMethodManager(activity: Activity) {
+        val view: View? = activity.currentFocus
+        if (view != null) {
+            val inputMethodManager : InputMethodManager =
+                activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.hideSoftInputFromWindow(
+               view.windowToken,InputMethodManager.HIDE_NOT_ALWAYS
+            )
+        }
+    }
 }

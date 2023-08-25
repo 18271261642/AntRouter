@@ -23,6 +23,10 @@ package com.jkcq.antrouter.usbserial.driver;
 
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
+import android.util.Log;
+
+import com.google.gson.Gson;
+import com.jkcq.antrouter.usbserial.CustomProber;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -43,6 +47,11 @@ public class UsbSerialProber {
 
     public static UsbSerialProber getDefaultProber() {
         return new UsbSerialProber(getDefaultProbeTable());
+    }
+
+
+    public static UsbSerialProber getCus(){
+        return CustomProber.getCustomProber();
     }
     
     public static ProbeTable getDefaultProbeTable() {
@@ -68,7 +77,9 @@ public class UsbSerialProber {
         final List<UsbSerialDriver> result = new ArrayList<UsbSerialDriver>();
 
         for (final UsbDevice usbDevice : usbManager.getDeviceList().values()) {
+            Log.e("USB","------usbDevice="+new Gson().toJson(usbDevice));
             final UsbSerialDriver driver = probeDevice(usbDevice);
+            Log.e("USB","------driver="+(driver == null));
             if (driver != null) {
                 result.add(driver);
             }

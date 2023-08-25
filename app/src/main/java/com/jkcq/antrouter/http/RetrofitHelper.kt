@@ -1,13 +1,9 @@
-package com.juxun.physical.http
+package com.jkcq.antrouter.http
 
 import com.beyondworlds.wanandroid.net.BaseRetrofitHelper
 import com.jkcq.antrouter.AllocationApi
-import com.jkcq.antrouter.http.ApiService
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.concurrent.TimeUnit
 
 
 /**

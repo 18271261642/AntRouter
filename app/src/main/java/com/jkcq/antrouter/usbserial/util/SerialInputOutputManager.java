@@ -136,7 +136,7 @@ public class SerialInputOutputManager implements Runnable {
             mState = State.RUNNING;
         }
 
-        Log.i(TAG, "Running ..");
+        Log.e(TAG, "Running ..");
         try {
             while (true) {
                 if (getState() != State.RUNNING) {
@@ -146,7 +146,7 @@ public class SerialInputOutputManager implements Runnable {
                 step();
             }
         } catch (Exception e) {
-            Log.w(TAG, "Run ending due to exception: " + e.getMessage(), e);
+            Log.e(TAG, "Run ending due to exception: " + e.getMessage(), e);
             final Listener listener = getListener();
             if (listener != null) {
               listener.onRunError(e);

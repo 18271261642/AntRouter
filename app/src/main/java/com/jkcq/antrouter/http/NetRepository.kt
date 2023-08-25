@@ -4,7 +4,6 @@ import com.jkcq.antrouter.bean.AloneClubInfoBean
 import com.jkcq.antrouter.bean.BaseResponse
 import com.jkcq.antrouter.bean.TokenBean
 import com.jkcq.antrouter.bean.VersionInfo
-import com.juxun.physical.http.RetrofitHelper
 
 /**
  *  Created by BeyondWorlds

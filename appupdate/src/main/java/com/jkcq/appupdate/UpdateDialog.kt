@@ -4,9 +4,10 @@ import android.app.Activity
 import android.app.Dialog
 import android.view.Gravity
 import android.view.LayoutInflater
+import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.android.synthetic.main.dialog_update_layout.*
+import android.widget.TextView
 
 
 /**
@@ -16,11 +17,24 @@ class UpdateDialog(private val mContext: Activity, type: Int, values: String) : 
 
     private var clickListener: OnDialogClickListener? = null
 
+    private var tv_progress_value : TextView ?= null
+    private var view_progress : ProgressView?= null
+    private var tv_packge : TextView ?= null
+
+
+
     init {
         val view = LayoutInflater.from(mContext).inflate(R.layout.dialog_update_layout, null)
         setContentView(view)
         setCancelable(false)
         setCanceledOnTouchOutside(false)
+
+
+        val cancel_upload : TextView = view.findViewById(R.id.cancel_upload)
+        tv_progress_value = view.findViewById(R.id.tv_progress_value)
+        view_progress = findViewById(R.id.view_progress)
+        tv_packge = findViewById(R.id.tv_packge)
+
         //设置Dialog大小位置
         val dialogWindow = window
         val lp = dialogWindow!!.attributes
@@ -37,9 +51,9 @@ class UpdateDialog(private val mContext: Activity, type: Int, values: String) : 
       cancel_upload.setOnClickListener { clickListener?.dialogClickType(1) }
     }
     fun updateProgress(progress: Long) {
-        tv_progress_value.setText(progress.toString() + "%")
+        tv_progress_value?.setText(progress.toString() + "%")
 //        Log.e("updateProgress", ""+progress)
-      view_progress.setProgress(progress)
+      view_progress?.setProgress(progress)
     }
 
 
@@ -47,7 +61,7 @@ class UpdateDialog(private val mContext: Activity, type: Int, values: String) : 
     fun setTvPackgeSize(size: Double) {
         val tips = mContext.resources.getString(R.string.package_size,""+size)
 //        tv_packge.setText(mContext.resources.getString(R.string.package_size,""+size))
-        tv_packge.setText("更新包大小:"+size+" M")
+        tv_packge?.setText("更新包大小:"+size+" M")
     }
 
     fun setOnDialogClickListener(clickListener: OnDialogClickListener) {
